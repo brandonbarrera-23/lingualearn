@@ -1,5 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Check, X, Star, Trophy, ChevronRight, Globe, Volume2, Mic, Type, MessageSquare, User, Sparkles, Lock, Award, Target, LogOut, Flame } from 'lucide-react';
+import { useAITutor } from '../hooks/useAITutor';
+
+export default function Home() {
+  const { aiExplanation, isLoadingAI, getAIExplanation } = useAITutor();
+  const [showAITutor, setShowAITutor] = useState(false);
+  
+  // Cuando el usuario falle una pregunta:
+  const handleAnswer = (index) => {
+    if (showResult) return;
+    setSelectedAnswer(index);
+    setShowResult(true);
+    
+    const currentLessonData = lessons[selectedLanguage.id][currentLevel][currentLesson];
+    const isCorrect = index === currentLessonData.correct;
+    
+    if (isCorrect) {
+      setScore(score + 1);
+      // ... tu lógica cuando es correcto
+      setShowAITutor(false);
+    } else {
+      setStreak(0);
+      // Activar el tutor IA
+      setShowAITutor(true);
+      getAIExplanation(userName, currentLevel, currentLessonData, index);
+    }
+  };
+  return (
+    <>
+      {/* Tu código existente */}
+      
+      {showAITutor && showResult && (
+        <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-2xl p-5 shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-2 rounded-full animate-pulse">
+              <span className="text-2xl">🤖</span>
+            </div>
+            <h3 className="text-lg font-bold text-blue-900">Tu Tutor IA te explica</h3>
+          </div>
+          {isLoadingAI ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-blue-900 leading-relaxed">{aiExplanation}</p>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function LanguageTutor() {
   const [screen, setScreen] = useState('login');
